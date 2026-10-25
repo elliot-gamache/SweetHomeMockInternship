@@ -750,11 +750,15 @@ public class FurnitureTable extends JTable implements View, Printable {
           return headerRendererLabel;
         }
       };
+    boolean foundLevel = false;
     for (int columnIndex = 0, n = columnModel.getColumnCount(); columnIndex < n; columnIndex++) {
       final TableColumn tableColumn = columnModel.getColumn(columnIndex);
       // Create a printable column from existing table column
       TableColumn printableColumn = new TableColumn();
       printableColumn.setIdentifier(tableColumn.getIdentifier());
+      if (tableColumn.getIdentifier() == HomePieceOfFurniture.SortableProperty.LEVEL) {
+        foundLevel = true;
+      };
       printableColumn.setHeaderValue(tableColumn.getHeaderValue());
       TableCellRenderer printableCellRenderer = new TableCellRenderer() {
           public Component getTableCellRendererComponent(JTable table, Object value, 
@@ -778,7 +782,30 @@ public class FurnitureTable extends JTable implements View, Printable {
       // Change printable column header renderer
       printableColumn.setHeaderRenderer(printableHeaderRenderer);
       printableColumnModel.addColumn(printableColumn);
-    }    
+    }
+    // Add Level column if not already added
+    if (!foundLevel) {
+      final TableColumn tableColumn =
+              ((FurnitureTableColumnModel)columnModel).availableColumns.get(HomePieceOfFurniture.SortableProperty.LEVEL);
+      TableColumn printableColumn = new TableColumn();
+      printableColumn.setIdentifier(tableColumn.getIdentifier());
+      printableColumn.setHeaderValue(tableColumn.getHeaderValue());
+      TableCellRenderer printableCellRenderer = new TableCellRenderer() {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                       boolean hasFocus, int row, int column) {
+          TableCellRenderer cellRenderer = tableColumn.getCellRenderer();
+          Component rendererComponent = cellRenderer.getTableCellRendererComponent(table, value,
+                  isSelected, hasFocus, row, column);
+          rendererComponent.setBackground(Color.WHITE);
+          rendererComponent.setForeground(Color.BLACK);
+          return rendererComponent;
+        }
+      };
+      printableColumn.setCellRenderer(printableCellRenderer);
+      // Change printable column header renderer
+      printableColumn.setHeaderRenderer(printableHeaderRenderer);
+      printableColumnModel.addColumn(printableColumn);
+    }
     return print(g, pageFormat, pageIndex, printableColumnModel, Color.BLACK);
   }
 
